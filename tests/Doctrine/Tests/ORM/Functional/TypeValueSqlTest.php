@@ -139,4 +139,25 @@ class TypeValueSqlTest extends \Doctrine\Tests\OrmFunctionalTestCase
 
         $this->assertEquals('foo', $result[0][0]->child->lowerCaseString);
     }
+
+    public function testQueryParameterWithoutType()
+    {
+        $entity = new CustomTypeUpperCase();
+        $entity->lowerCaseString = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        $id = $entity->id;
+
+        $this->_em->clear();
+
+        $query = $this->_em->createQuery('SELECT c.id from Doctrine\Tests\Models\CustomType\CustomTypeUpperCase c where c.lowerCaseString = ?1');
+        $query->setParameter('1', 'foo');
+
+        $result = $query->getResult();
+
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]['id']);
+    }
 }
